@@ -897,6 +897,8 @@ MonoBehaviour:
   CustomerPrefab: {fileID: 1072875626927826, guid: dbd2b20e1265b4603aea35c30a579400,
     type: 2}
   CustomerParent: {fileID: 1297818709}
+  FifthLid: {fileID: 1039692114}
+  SixthLid: {fileID: 1954920543}
   Scoop: {fileID: 46354051}
   ScoopIcecreamPrefab: {fileID: 1024403531784120, guid: 95136cf810d5b4b2f86839902a5cb3bf,
     type: 2}
@@ -910,6 +912,7 @@ MonoBehaviour:
   StartPanel: {fileID: 503894250}
   StartText: {fileID: 2030263095}
   ResultPanel: {fileID: 686610840}
+  ResultStageText: {fileID: 770684140}
   ResultText: {fileID: 970147057}
 --- !u!4 &583604748
 Transform:
@@ -9058,7 +9061,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1039692113
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9083,7 +9086,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1039692112}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
   m_Name: 
@@ -13707,7 +13710,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1954920542
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13732,7 +13735,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1954920541}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
   m_Name: 

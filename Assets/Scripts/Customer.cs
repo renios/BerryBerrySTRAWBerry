@@ -10,9 +10,10 @@ public class Customer : MonoBehaviour {
 	public GameObject IcecreamParent;
 	public GameObject IcecreamPrefab;
 	public List<IcecreamTaste> Order { get; private set;}
+	public List<bool> ThinkingFaceList {get; private set; }
 	public bool LaughBell { get; private set; }
 
-	public void Initialize(bool isLaughBell, List<IcecreamTaste> order) {
+	public void Initialize(bool isLaughBell, List<IcecreamTaste> order, List<bool> thinkingFaceList) {
 		// 손님의 외모 결정
 		Object[] spritePool;
 
@@ -28,9 +29,10 @@ public class Customer : MonoBehaviour {
 
 		// 아이스크림 배치
 		Order = order;
+		ThinkingFaceList = thinkingFaceList;
 		for (int i = 0; i < order.Count; i++) {
 			var icecream = Instantiate(IcecreamPrefab, IcecreamParent.transform);
-			icecream.GetComponent<Icecream>().Initialize(order[i]);
+			icecream.GetComponent<Icecream>().Initialize(order[i], thinkingFaceList[i]);
 		}
 	}
 

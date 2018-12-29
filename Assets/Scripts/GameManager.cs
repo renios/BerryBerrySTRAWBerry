@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour {
 	public GameObject CustomerPrefab;
 	public GameObject CustomerParent;
 
+	public Image FifthLid;
+	public Image SixthLid;
+
 	public GameObject Scoop;
 
 	public GameObject ScoopIcecreamPrefab;
@@ -37,6 +40,7 @@ public class GameManager : MonoBehaviour {
 	List<Customer> customers = new List<Customer>();
 	List<Icecream> scoopIcecreams = new List<Icecream>();
 
+	float thinkingFaceProb = 1.5f;
 	float laughBellProb = 15;
 	int minScoop = 2;
 	int maxScoop = 5;
@@ -64,16 +68,19 @@ public class GameManager : MonoBehaviour {
 		// 웃음벨 여부
 		var isLaughBell = Random.Range(0, 100) < laughBellProb;
 		// 주문 결정
-		List<IcecreamTaste> icecream = new List<IcecreamTaste>();
+		List<IcecreamTaste> tasteList = new List<IcecreamTaste>();
+		List<bool> thinkingFaceList = new List<bool>();
 		var scoopNumber = Random.Range(minScoop, maxScoop+1);
 		for (int i = 0; i < scoopNumber; i++) {
 			IcecreamTaste taste = (IcecreamTaste)Random.Range(0, icecreamVary);
-			icecream.Add(taste);
+			tasteList.Add(taste);
+			var isThinkingFace = Random.Range(0, 100f) < thinkingFaceProb;
+			thinkingFaceList.Add(isThinkingFace);
 		}
 
 		var customerObject = Instantiate(CustomerPrefab, CustomerParent.transform);
 		var customer = customerObject.GetComponent<Customer>();
-		customer.Initialize(isLaughBell, icecream);
+		customer.Initialize(isLaughBell, tasteList, thinkingFaceList);
 		customers.Add(customer);
 	}
 
@@ -106,11 +113,11 @@ public class GameManager : MonoBehaviour {
 			taste = IcecreamTaste.Vanilla;
 			xPos = 704;
 		}
-		else if (inputString == "g") {
+		else if (icecreamVary > 4 && inputString == "g") {
 			taste = IcecreamTaste.GreenTea;
 			xPos = 912;
 		}
-		else if (inputString == "h") {
+		else if (icecreamVary > 5 && inputString == "h") {
 			taste = IcecreamTaste.ShootingStar;
 			xPos = 1120;
 		}
@@ -206,12 +213,17 @@ public class GameManager : MonoBehaviour {
 	bool IsMatching() {
 		var customer = customers[0];
 		var order = customer.Order;
+		var thinkingFaceList = customer.ThinkingFaceList;
 
 		// 길이가 다를 경우 -> false
 		if (order.Count != scoopIcecreams.Count) return false;
 
-		// 맛 판별 (TODO: thinking_face 아무맛)
+		// 맛 판별
 		for (int i = 0; i < order.Count; i++) {
+			// ThinkingFace면 무조건 통과
+			if (thinkingFaceList[i] == true)
+				continue;
+
 			if (order[i] != scoopIcecreams[i].GetComponent<Icecream>().Taste)
 				return false;
 		}
@@ -257,8 +269,9 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Initialize() {
+		var stage = GameData._stage;
 		StartPanel.SetActive(true);
-		StartText.text = "Stage " + GameData._stage;
+		StartText.text = "Stage " + stage;
 
 		playable = false;
 		printResult = false;
@@ -267,8 +280,19 @@ public class GameManager : MonoBehaviour {
 
 		laughBellCount = 0;
 
+		// 각종 변수
+		icecreamVary = GameData._icecreamVary[stage-1]; 
+		minScoop = GameData._minScoop[stage-1];
+		maxScoop = GameData._maxScoop[stage-1];
+		laughBellProb = GameData._laughBellProb[stage-1];
+		thinkingFaceProb = GameData._thinkingFaceProb[stage-1];
+
+		// 안쓰는 아이스크림 비활성화
+		if (icecreamVary < 5) FifthLid.enabled = true;
+		if (icecreamVary < 6) SixthLid.enabled = true;
+
 		// 상단 UI 3종
-		StageText.text = "Stage " + GameData._stage;
+		StageText.text = "Stage " + stage;
 
 		TimeText.color = Color.black;
 		TimeText.text = (initialTime / 60).ToString("D2") + ":" 
