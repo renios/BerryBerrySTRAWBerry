@@ -9,11 +9,18 @@ public class GameManager : MonoBehaviour {
 	public GameObject CustomerPrefab;
 	public GameObject CustomerParent;
 
+	public GameObject Scoop;
+
+	public GameObject ScoopIcecreamPrefab;
+	public GameObject ScoopIcecreamParent;
+
 	List<Customer> customers = new List<Customer>();
+	List<Icecream> scoopIcecreams = new List<Icecream>();
 
 	float laughBellProb = 15;
 	int minScoop = 2;
 	int maxScoop = 5;
+	int maxServedScoop = 5;
 	int icecreamVary = 6;
 
 	void MakeCustomer() {
@@ -33,6 +40,63 @@ public class GameManager : MonoBehaviour {
 		customers.Add(customer);
 	}
 
+	void AddScoop(string inputString) {
+		// 5개 초과로 올리려면 경고음(미구현)만 들림
+		if (scoopIcecreams.Count >= maxServedScoop) {
+			Debug.LogWarning("Too many scoop");
+			// TODO: 경고음
+			return;
+		}
+		
+		IcecreamTaste taste;
+		int xPos;
+		int yPos = 60;
+
+		if (inputString == "a") {
+			taste = IcecreamTaste.MintChoco;
+			xPos = 80;
+		}
+		else if (inputString == "s") {
+			taste = IcecreamTaste.Choco;
+			xPos = 288;
+		}
+		else if (inputString == "d") {
+			taste = IcecreamTaste.BerryBerryStrawBerry;
+			xPos = 496;
+		}
+		else if (inputString == "f") {
+			taste = IcecreamTaste.Vanilla;
+			xPos = 704;
+		}
+		else if (inputString == "g") {
+			taste = IcecreamTaste.GreenTea;
+			xPos = 912;
+		}
+		else if (inputString == "h") {
+			taste = IcecreamTaste.ShootingStar;
+			xPos = 1120;
+		}
+		else return;
+
+		Scoop.GetComponent<RectTransform>().anchoredPosition = new Vector2(xPos, yPos);
+		var scoopIcecreamObject = Instantiate(ScoopIcecreamPrefab, ScoopIcecreamParent.transform);
+		var scoopIcecream = scoopIcecreamObject.GetComponent<Icecream>();
+		scoopIcecream.Initialize(taste);
+		scoopIcecreams.Add(scoopIcecream);
+	}
+
+	void ServeIcecream() {
+		// 서빙 판정
+
+		// 아이스크림 리셋
+		int currentScoopNumber = scoopIcecreams.Count;
+		for (int i = 0; i < currentScoopNumber; i++) {
+			var scoop = scoopIcecreams[currentScoopNumber - 1 - i];
+			scoopIcecreams.Remove(scoop);
+			scoop.gameObject.SetActive(false);
+		}
+	}
+
 	// Use this for initialization
 	void Start () {
 		
@@ -42,11 +106,19 @@ public class GameManager : MonoBehaviour {
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.Return)) {
 			if (customers.Count > 2) {
-				var destroyCustomer = customers[0];
-				customers.Remove(destroyCustomer);
-				destroyCustomer.gameObject.SetActive(false);
+				var customer = customers[0];
+				customers.Remove(customer);
+				customer.gameObject.SetActive(false);
 			}
 			MakeCustomer();
+		}
+
+		if (Input.GetKeyDown(KeyCode.Space)) {
+			ServeIcecream();
+		}
+
+		if (Input.anyKeyDown) {
+			AddScoop(Input.inputString);
 		}
 	}
 }

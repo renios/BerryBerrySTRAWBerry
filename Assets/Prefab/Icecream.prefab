@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 224108963984718186}
   - component: {fileID: 222882341430351946}
   - component: {fileID: 114399315440360408}
+  - component: {fileID: 114137668513504802}
   m_Layer: 5
   m_Name: Icecream
   m_TagString: Untagged
@@ -28,6 +29,25 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114137668513504802
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1024403531784120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbcfa645515244e3b9e7d436606a2c45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Image: {fileID: 114399315440360408}
+  IcecreamImages:
+  - {fileID: 21300000, guid: 878d2a189c12f49d68c2417a8e268e65, type: 3}
+  - {fileID: 21300000, guid: a90600b4182f1444485bee6666df7f9f, type: 3}
+  - {fileID: 21300000, guid: 125e8551d22da460c971baab86caba15, type: 3}
+  - {fileID: 21300000, guid: b37f41c3289674b4eb287398d828936a, type: 3}
+  - {fileID: 21300000, guid: 0842f8fbd402a4b5c950bedd9dab25b0, type: 3}
+  - {fileID: 21300000, guid: 90785befcc6fd4e119545786412a9f7d, type: 3}
 --- !u!114 &114399315440360408
 MonoBehaviour:
   m_ObjectHideFlags: 1
