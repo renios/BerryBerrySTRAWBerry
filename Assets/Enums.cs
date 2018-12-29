@@ -12,4 +12,11 @@ namespace Enums {
 		GreenTea = 4,
 		ShootingStar = 5
 	}
+
+	public enum SE {
+		Success,
+		Fail,
+		AddScoop,
+		TooManyScoop
+	}
 }

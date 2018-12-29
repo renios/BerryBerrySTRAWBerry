@@ -7,6 +7,8 @@ using System.Linq;
 
 public class GameManager : MonoBehaviour {
 
+	public SoundManager soundManager;
+
 	public GameObject CustomerPrefab;
 	public GameObject CustomerParent;
 
@@ -14,6 +16,12 @@ public class GameManager : MonoBehaviour {
 
 	public GameObject ScoopIcecreamPrefab;
 	public GameObject ScoopIcecreamParent;
+
+	public Text StageText;
+	public Text TimeText;
+	public Text GoldText;
+
+	public GameObject laughBell;
 
 	List<Customer> customers = new List<Customer>();
 	List<Icecream> scoopIcecreams = new List<Icecream>();
@@ -23,6 +31,17 @@ public class GameManager : MonoBehaviour {
 	int maxScoop = 5;
 	int maxServedScoop = 5;
 	int icecreamVary = 6;
+
+	int initialTime = 600;
+	int currentTime;
+	int clockDelay = 4;
+	int clockTerm = 10;
+	float deltaTime;
+	bool lastOrder;
+
+	int currentGold;
+	int successGoldPerScoop = 1;
+	int failGoldPerScoop = 2;
 
 	void MakeCustomer() {
 		// 웃음벨 여부
@@ -45,6 +64,7 @@ public class GameManager : MonoBehaviour {
 		// 5개 초과로 올리려면 경고음(미구현)만 들림
 		if (scoopIcecreams.Count >= maxServedScoop) {
 			Debug.LogWarning("Too many scoop");
+			soundManager.Play(SE.TooManyScoop);
 			// TODO: 경고음
 			return;
 		}
@@ -84,6 +104,19 @@ public class GameManager : MonoBehaviour {
 		var scoopIcecream = scoopIcecreamObject.GetComponent<Icecream>();
 		scoopIcecream.Initialize(taste);
 		scoopIcecreams.Add(scoopIcecream);
+		soundManager.Play(SE.AddScoop);
+	}
+
+	void RemoveScoop() {
+		if (scoopIcecreams.Count < 1) {
+			soundManager.Play(SE.TooManyScoop);
+			return;
+		}
+
+		var scoop = scoopIcecreams[scoopIcecreams.Count - 1];
+		scoopIcecreams.Remove(scoop);
+		scoop.gameObject.SetActive(false);
+		soundManager.Play(SE.AddScoop);
 	}
 
 	void ServeIcecream() {
@@ -92,14 +125,26 @@ public class GameManager : MonoBehaviour {
 
 		// 서빙 판정
 		if (IsMatching()) {
+			int successGold = scoopIcecreams.Count * successGoldPerScoop;
+			currentGold += successGold;
+			soundManager.Play(SE.Success);
 			Debug.LogWarning("-- Success --");
 		}
 		else {
+			int failGold = scoopIcecreams.Count * failGoldPerScoop;
+			currentGold -= failGold;
+			soundManager.Play(SE.Fail);
 			Debug.LogWarning("-- Fail --");
 		}
 
 		// 웃음벨 (미구현)
 		if (IsLaughBellActive()) {
+			soundManager.Stop();
+			if (laughBell.activeInHierarchy) {
+				laughBell.SetActive(false);
+			}
+			laughBell.SetActive(true);
+			laughBell.GetComponent<Timer>().ResetTime();
 			Debug.LogWarning(">>> LaughBell <<<");
 		}
 
@@ -147,13 +192,45 @@ public class GameManager : MonoBehaviour {
 		else return false;
 	}
 
+	void UpdateClock() {
+		if (currentTime >= 1200) {
+			lastOrder = true;
+			return;
+		}
+
+		deltaTime += Time.deltaTime;
+		if (deltaTime > clockDelay) {
+			deltaTime = 0;
+			currentTime += clockTerm;
+
+			TimeText.text = (currentTime / 60).ToString("D2") + ":" 
+						+ (currentTime % 60).ToString("D2");
+		}
+	}
+
+	void UpdateGold() {
+		if (currentGold < 0) currentGold = 0;
+		GoldText.text = currentGold.ToString() + "G";
+	}
+
+	void Initialize() {
+		lastOrder = false;
+		TimeText.text = (initialTime / 60).ToString("D2") + ":" 
+						+ (initialTime % 60).ToString("D2");
+		currentTime = initialTime;
+		deltaTime = 0;
+	}
+
 	// Use this for initialization
 	void Start () {
-		
+		Initialize();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		UpdateClock();
+		UpdateGold();
+
 		if (Input.GetKeyDown(KeyCode.Return)) {
 			// if (customers.Count > 2) {
 			// 	var customer = customers[0];
@@ -167,6 +244,10 @@ public class GameManager : MonoBehaviour {
 
 		if (Input.GetKeyDown(KeyCode.Space)) {
 			ServeIcecream();
+		}
+
+		if (Input.GetKeyDown(KeyCode.Backspace)) {
+			RemoveScoop();
 		}
 
 		if (Input.anyKeyDown) {
