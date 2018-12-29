@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Enums;
+using System.Linq;
 
 public class GameManager : MonoBehaviour {
 
@@ -86,7 +87,26 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void ServeIcecream() {
+		// 손님이 없을 경우 패스
+		if (customers.Count < 1) return;
+
 		// 서빙 판정
+		if (IsMatching()) {
+			Debug.LogWarning("-- Success --");
+		}
+		else {
+			Debug.LogWarning("-- Fail --");
+		}
+
+		// 웃음벨 (미구현)
+		if (IsLaughBellActive()) {
+			Debug.LogWarning(">>> LaughBell <<<");
+		}
+
+		// 손님 보냄
+		var customer = customers[0];
+		customers.Remove(customer);
+		customer.gameObject.SetActive(false);
 
 		// 아이스크림 리셋
 		int currentScoopNumber = scoopIcecreams.Count;
@@ -97,6 +117,36 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	bool IsMatching() {
+		var customer = customers[0];
+		var order = customer.Order;
+
+		// 길이가 다를 경우 -> false
+		if (order.Count != scoopIcecreams.Count) return false;
+
+		// 맛 판별 (TODO: thinking_face 아무맛)
+		for (int i = 0; i < order.Count; i++) {
+			if (order[i] != scoopIcecreams[i].GetComponent<Icecream>().Taste)
+				return false;
+		}
+
+		return true;
+	}
+
+	bool IsLaughBellActive() {
+		var customer = customers[0];
+
+		// 주는 아이스크림이 비어있을 경우 -> false
+		if (scoopIcecreams.Count == 0) return false;
+
+		if (scoopIcecreams.Find(scoop => 
+				scoop.GetComponent<Icecream>().Taste 
+				== IcecreamTaste.BerryBerryStrawBerry) 
+			&& customer.LaughBell)
+			return true;
+		else return false;
+	}
+
 	// Use this for initialization
 	void Start () {
 		
@@ -105,12 +155,14 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.Return)) {
-			if (customers.Count > 2) {
-				var customer = customers[0];
-				customers.Remove(customer);
-				customer.gameObject.SetActive(false);
-			}
-			MakeCustomer();
+			// if (customers.Count > 2) {
+			// 	var customer = customers[0];
+			// 	customers.Remove(customer);
+			// 	customer.gameObject.SetActive(false);
+			// }
+
+			while (customers.Count < 3)
+				MakeCustomer();
 		}
 
 		if (Input.GetKeyDown(KeyCode.Space)) {
@@ -120,5 +172,8 @@ public class GameManager : MonoBehaviour {
 		if (Input.anyKeyDown) {
 			AddScoop(Input.inputString);
 		}
+
+		while (customers.Count < 3)
+			MakeCustomer();
 	}
 }
