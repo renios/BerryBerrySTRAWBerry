@@ -19,4 +19,9 @@ namespace Enums {
 		AddScoop,
 		TooManyScoop
 	}
+
+	public enum Effect {
+		Success,
+		Fail
+	}
 }

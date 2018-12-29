@@ -21,7 +21,16 @@ public class GameManager : MonoBehaviour {
 	public Text TimeText;
 	public Text GoldText;
 
-	public GameObject laughBell;
+	public GameObject LaughBell;
+
+	public GameObject SuccessEffect;
+	public GameObject FailEffect;
+
+	public GameObject StartPanel;
+	public Text StartText;
+
+	public GameObject ResultPanel;
+	public Text ResultText;
 
 	List<Customer> customers = new List<Customer>();
 	List<Icecream> scoopIcecreams = new List<Icecream>();
@@ -119,6 +128,18 @@ public class GameManager : MonoBehaviour {
 		soundManager.Play(SE.AddScoop);
 	}
 
+	void PlayEffect(Effect effect) {
+		SuccessEffect.SetActive(false);
+		FailEffect.SetActive(false);
+
+		if (effect == Effect.Success) {
+			SuccessEffect.SetActive(true);
+		}
+		if (effect == Effect.Fail) {
+			FailEffect.SetActive(true);
+		}
+	}
+
 	void ServeIcecream() {
 		// 손님이 없을 경우 패스
 		if (customers.Count < 1) return;
@@ -127,12 +148,14 @@ public class GameManager : MonoBehaviour {
 		if (IsMatching()) {
 			int successGold = scoopIcecreams.Count * successGoldPerScoop;
 			currentGold += successGold;
+			PlayEffect(Effect.Success);
 			soundManager.Play(SE.Success);
 			Debug.LogWarning("-- Success --");
 		}
 		else {
 			int failGold = scoopIcecreams.Count * failGoldPerScoop;
 			currentGold -= failGold;
+			PlayEffect(Effect.Fail);
 			soundManager.Play(SE.Fail);
 			Debug.LogWarning("-- Fail --");
 		}
@@ -140,11 +163,11 @@ public class GameManager : MonoBehaviour {
 		// 웃음벨 (미구현)
 		if (IsLaughBellActive()) {
 			soundManager.Stop();
-			if (laughBell.activeInHierarchy) {
-				laughBell.SetActive(false);
+			if (LaughBell.activeInHierarchy) {
+				LaughBell.SetActive(false);
 			}
-			laughBell.SetActive(true);
-			laughBell.GetComponent<Timer>().ResetTime();
+			LaughBell.SetActive(true);
+			LaughBell.GetComponent<Timer>().ResetTime();
 			Debug.LogWarning(">>> LaughBell <<<");
 		}
 
@@ -215,10 +238,13 @@ public class GameManager : MonoBehaviour {
 
 	void Initialize() {
 		lastOrder = false;
+
 		TimeText.text = (initialTime / 60).ToString("D2") + ":" 
 						+ (initialTime % 60).ToString("D2");
 		currentTime = initialTime;
 		deltaTime = 0;
+
+		GoldText.text = currentGold.ToString() + "G";
 	}
 
 	// Use this for initialization
