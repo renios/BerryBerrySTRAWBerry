@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Enums;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
@@ -30,6 +31,7 @@ public class GameManager : MonoBehaviour {
 	public Text StartText;
 
 	public GameObject ResultPanel;
+	public Text ResultStageText;
 	public Text ResultText;
 
 	List<Customer> customers = new List<Customer>();
@@ -51,6 +53,12 @@ public class GameManager : MonoBehaviour {
 	int currentGold;
 	int successGoldPerScoop = 1;
 	int failGoldPerScoop = 2;
+	int totalGold;
+
+	int laughBellCount;
+
+	bool playable;
+	bool printResult;
 
 	void MakeCustomer() {
 		// 웃음벨 여부
@@ -160,8 +168,9 @@ public class GameManager : MonoBehaviour {
 			Debug.LogWarning("-- Fail --");
 		}
 
-		// 웃음벨 (미구현)
+		// 웃음벨
 		if (IsLaughBellActive()) {
+			laughBellCount += 1;
 			soundManager.Stop();
 			if (LaughBell.activeInHierarchy) {
 				LaughBell.SetActive(false);
@@ -182,6 +191,15 @@ public class GameManager : MonoBehaviour {
 			var scoop = scoopIcecreams[currentScoopNumber - 1 - i];
 			scoopIcecreams.Remove(scoop);
 			scoop.gameObject.SetActive(false);
+		}
+
+		// 마지막 손님이면 게임 종료
+		UpdateGold();
+		if (lastOrder) {
+			playable = false;
+			printResult = true;
+
+			PrintResult();
 		}
 	}
 
@@ -216,10 +234,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void UpdateClock() {
-		if (currentTime >= 1200) {
-			lastOrder = true;
-			return;
-		}
+		if (lastOrder) return;
 
 		deltaTime += Time.deltaTime;
 		if (deltaTime > clockDelay) {
@@ -229,6 +244,11 @@ public class GameManager : MonoBehaviour {
 			TimeText.text = (currentTime / 60).ToString("D2") + ":" 
 						+ (currentTime % 60).ToString("D2");
 		}
+
+		if (currentTime >= 1200) {
+			lastOrder = true;
+			TimeText.color = Color.red;
+		}
 	}
 
 	void UpdateGold() {
@@ -237,14 +257,44 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Initialize() {
+		StartPanel.SetActive(true);
+		StartText.text = "Stage " + GameData._stage;
+
+		playable = false;
+		printResult = false;
+
 		lastOrder = false;
 
+		laughBellCount = 0;
+
+		// 상단 UI 3종
+		StageText.text = "Stage " + GameData._stage;
+
+		TimeText.color = Color.black;
 		TimeText.text = (initialTime / 60).ToString("D2") + ":" 
 						+ (initialTime % 60).ToString("D2");
 		currentTime = initialTime;
 		deltaTime = 0;
 
+		currentGold = GameData._totalGold;
 		GoldText.text = currentGold.ToString() + "G";
+	}
+
+	void PrintResult() {
+		// 활성화된 이펙트 끄기
+		LaughBell.SetActive(false);
+		SuccessEffect.SetActive(false);
+		FailEffect.SetActive(false);
+
+		ResultPanel.SetActive(true);
+
+		totalGold = currentGold - 20 - 50 - (laughBellCount * 10);
+		ResultStageText.text = "Stage " + GameData._stage;
+		ResultText.text = currentGold + "G" + '\n' +
+						  "-20G" + '\n' +
+						  "-50G" + '\n' +
+						  "-" + (laughBellCount * 10) + "G" + '\n' + '\n' +
+						  totalGold;
 	}
 
 	// Use this for initialization
@@ -254,6 +304,34 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (!playable) {
+			if (Input.GetKeyDown(KeyCode.Space)) {
+				// 스테이지 시작
+				if (!printResult) {
+					StartPanel.SetActive(false);
+					playable = true;
+				}
+				// 스테이지 종료 (게임오버 / 엔딩 / 다음스테이지)
+				else {
+					if (totalGold < 0) {
+						SceneManager.LoadScene("GameOver");
+						return;
+					}
+					
+					if (GameData._stage > 9) {
+						SceneManager.LoadScene("Ending");
+						return;
+					}
+
+					GameData._stage += 1;
+					GameData._totalGold = totalGold;
+					SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+				}
+			}
+
+			return;
+		}
+
 		UpdateClock();
 		UpdateGold();
 
@@ -280,7 +358,18 @@ public class GameManager : MonoBehaviour {
 			AddScoop(Input.inputString);
 		}
 
-		while (customers.Count < 3)
+		while (!lastOrder && customers.Count < 3)
 			MakeCustomer();
+
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+		}
+
+		// 테스트용. 시계 강제 업데이트
+		if (Input.GetKeyDown(KeyCode.Alpha0)) {
+			currentTime = 1180;
+			deltaTime = 5;
+			UpdateClock();
+		}
 	}
 }
