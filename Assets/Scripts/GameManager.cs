@@ -32,6 +32,8 @@ public class GameManager : MonoBehaviour {
 	public GameObject SuccessEffect;
 	public GameObject FailEffect;
 
+	public AudioSource TickTockSource;
+
 	public GameObject StartPanel;
 	public Text StartText;
 
@@ -49,12 +51,13 @@ public class GameManager : MonoBehaviour {
 	int maxServedScoop = 5;
 	int icecreamVary = 6;
 
-	int initialTime = 600;
+	int initialTime = 720;
 	int currentTime;
-	int clockDelay = 4;
+	int clockDelay = 2;
 	int clockTerm = 10;
 	float deltaTime;
 	bool lastOrder;
+	int lastOrderTime = 1080;
 
 	int currentGold;
 	int successGoldPerScoop = 1;
@@ -262,7 +265,11 @@ public class GameManager : MonoBehaviour {
 						+ (currentTime % 60).ToString("D2");
 		}
 
-		if (currentTime >= 1200) {
+		if (currentTime >= lastOrderTime - 60 && !TickTockSource.enabled) {
+			TickTockSource.enabled = true;
+		}
+
+		if (currentTime >= lastOrderTime) {
 			lastOrder = true;
 			TimeText.color = Color.red;
 		}
@@ -277,6 +284,7 @@ public class GameManager : MonoBehaviour {
 		var stage = GameData._stage;
 		StartPanel.SetActive(true);
 		StartText.text = "Stage " + stage;
+		soundManager.Play(SE.Shutter);
 
 		playable = false;
 		printResult = false;
@@ -315,7 +323,9 @@ public class GameManager : MonoBehaviour {
 		ShakeAnim.enabled = false;
 		SuccessEffect.SetActive(false);
 		FailEffect.SetActive(false);
+		TickTockSource.enabled = false;
 
+		soundManager.Play(SE.Shutter);
 		ResultPanel.SetActive(true);
 
 		totalGold = currentGold - 20 - 50 - (laughBellCount * 10);
@@ -340,6 +350,7 @@ public class GameManager : MonoBehaviour {
 				if (!printResult) {
 					StartPanel.SetActive(false);
 					playable = true;
+					soundManager.Play(SE.Bell);
 				}
 				// 스테이지 종료 (게임오버 / 엔딩 / 다음스테이지)
 				else {
@@ -366,12 +377,6 @@ public class GameManager : MonoBehaviour {
 		UpdateGold();
 
 		if (Input.GetKeyDown(KeyCode.Return)) {
-			// if (customers.Count > 2) {
-			// 	var customer = customers[0];
-			// 	customers.Remove(customer);
-			// 	customer.gameObject.SetActive(false);
-			// }
-
 			while (customers.Count < 3)
 				MakeCustomer();
 		}
@@ -397,7 +402,7 @@ public class GameManager : MonoBehaviour {
 
 		// 테스트용. 시계 강제 업데이트
 		if (Input.GetKeyDown(KeyCode.Alpha0)) {
-			currentTime = 1180;
+			currentTime = lastOrderTime - 30;
 			deltaTime = 5;
 			UpdateClock();
 		}
