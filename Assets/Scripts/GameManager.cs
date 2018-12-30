@@ -294,6 +294,10 @@ public class GameManager : MonoBehaviour {
 		laughBellCount = 0;
 
 		// 각종 변수
+		currentTime = GameData._openTime;
+		lastOrderTime = GameData._lastOrderTime;
+		clockDelay = GameData._clockDelay;
+		clockTerm = GameData._clockTerm;
 		icecreamVary = GameData._icecreamVary[stage-1]; 
 		minScoop = GameData._minScoop[stage-1];
 		maxScoop = GameData._maxScoop[stage-1];
