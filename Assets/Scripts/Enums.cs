@@ -17,7 +17,11 @@ namespace Enums {
 		Success,
 		Fail,
 		AddScoop,
-		TooManyScoop
+		TooManyScoop,
+		Click,
+		Bell,
+		Shutter,
+		TickTock
 	}
 
 	public enum Effect {

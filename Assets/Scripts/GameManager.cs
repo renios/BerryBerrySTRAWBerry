@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour {
 	public Image SixthLid;
 
 	public GameObject Scoop;
+	public Animator ScoopAnim;
 
 	public GameObject ScoopIcecreamPrefab;
 	public GameObject ScoopIcecreamParent;
@@ -26,6 +27,7 @@ public class GameManager : MonoBehaviour {
 	public Text GoldText;
 
 	public GameObject LaughBell;
+	public Animator ShakeAnim;
 
 	public GameObject SuccessEffect;
 	public GameObject FailEffect;
@@ -129,6 +131,7 @@ public class GameManager : MonoBehaviour {
 		scoopIcecream.Initialize(taste);
 		scoopIcecreams.Add(scoopIcecream);
 		soundManager.Play(SE.AddScoop);
+		ScoopAnim.SetTrigger("Move");
 	}
 
 	void RemoveScoop() {
@@ -183,6 +186,8 @@ public class GameManager : MonoBehaviour {
 				LaughBell.SetActive(false);
 			}
 			LaughBell.SetActive(true);
+			ShakeAnim.enabled = true;
+			ShakeAnim.Play("Truck");
 			LaughBell.GetComponent<Timer>().ResetTime();
 			Debug.LogWarning(">>> LaughBell <<<");
 		}
@@ -307,6 +312,7 @@ public class GameManager : MonoBehaviour {
 	void PrintResult() {
 		// 활성화된 이펙트 끄기
 		LaughBell.SetActive(false);
+		ShakeAnim.enabled = false;
 		SuccessEffect.SetActive(false);
 		FailEffect.SetActive(false);
 

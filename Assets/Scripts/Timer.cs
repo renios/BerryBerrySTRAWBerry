@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Timer : MonoBehaviour {
 
+	public Animator PairedAnim;
+
 	float remainTime;
 	int lifeTime = 10;
 
@@ -21,6 +23,8 @@ public class Timer : MonoBehaviour {
 		remainTime += Time.deltaTime;
 
 		if (remainTime > lifeTime) {
+			if (PairedAnim != null) 
+				PairedAnim.enabled = false;
 			gameObject.SetActive(false);
 		}
 	}
